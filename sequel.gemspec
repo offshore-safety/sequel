@@ -17,6 +17,7 @@ SEQUEL_GEMSPEC = Gem::Specification.new do |s|
   s.require_path = "lib"
   s.bindir = 'bin'
   s.executables << 'sequel'
+  s.add_dependency "term-ansicolor"
   s.add_development_dependency "rspec"
   s.add_development_dependency "tzinfo"
   s.add_development_dependency "activemodel"

@@ -2,6 +2,12 @@
 
 require 'rubygems'
 require 'optparse'
+require 'term/ansicolor'
+require 'pry'
+
+class String
+  include Term::ANSIColor
+end
 
 code = nil
 copy_databases = nil
@@ -173,13 +179,13 @@ begin
     exit
   end
   if sync_databases
-
+    errors = []
     db2 = ARGV.shift
     error_proc["Error: Must specify database connection string or path to yaml file as second argument for database you want to copy to"] if db2.nil? || db2.empty?
     start_time = Time.now
     TO_DB = connect_proc[db2]
 
-    DB.tables.each do |table|
+    DB.tables.sort.each do |table|
       begin
         TO_DB.run "TRUNCATE TABLE #{table}"
         puts "Truncated #{table}"
@@ -188,7 +194,7 @@ begin
       end
     end
 
-    DB.tables.each do |table|
+    DB.tables.sort.each do |table|
       next if table == :audits # We really don't need to copy across the audits for dev, it's huge
 
       begin
@@ -196,7 +202,7 @@ begin
       rescue
       end
       record_count = DB["SELECT * FROM #{table}"].count
-      puts "Begin copying #{record_count} record(s) into -> #{table}"
+      puts "Begin copying #{record_count} record(s) into -> " << "#{table}".blue.bold
 
       time = Time.now
       to_ds = TO_DB.from(table)
@@ -210,15 +216,20 @@ begin
       end
 
 
-      records.each_slice(500) do |record_set|
-        if Time.now - time > 5
-          puts "Status: #{copied_count} records copied"
-          time = Time.now
-        end
-        copied_count += record_set.count
-        TO_DB[table].import(columns, record_set)
+        records.each_slice(500) do |record_set|
+          begin
+            if Time.now - time > 5
+              puts "Status: #{copied_count} records copied"
+              time = Time.now
+            end
+            copied_count += record_set.count
 
-      end
+            TO_DB[table].import(columns, record_set)
+          rescue => e
+            errors << e
+          end
+        end
+
 
       begin
         TO_DB.run("SET IDENTITY_INSERT #{table} OFF")
@@ -228,6 +239,15 @@ begin
 
 
     puts "Database copy finished in #{Time.now - start_time} seconds"
+
+    unless errors.empty?
+      puts "Handled errors"
+      puts "--------------"
+      errors.each do |err|
+        puts "#{err}".red.bold
+      end
+    end
+
     exit
   end
 
