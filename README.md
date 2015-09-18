@@ -9,6 +9,7 @@ It's probably not worth installing the gem globally as it may clash with other s
 - Ensure that Vagrant is running your SQL Server dev box
 - Ensure that all migrations have been run
 - Execute `./db_sync` takes around 6 minutes to complete
+- have freetds091
 
 ## Custom usage
 
