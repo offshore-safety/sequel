@@ -8,7 +8,7 @@ It's probably not worth installing the gem globally as it may clash with other s
 
 - Ensure that Vagrant is running your SQL Server dev box
 - `brew install homebrew/versions/freetds091`
-- Ensure that all migrations have been run
+- Ensure that all migrations have been run for rms3
 - Execute `./db_sync` takes around 6 minutes to complete
 
 ## Custom usage
