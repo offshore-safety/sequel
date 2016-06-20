@@ -11,6 +11,8 @@ It's probably not worth installing the gem globally as it may clash with other s
 - Ensure that all migrations have been run for rms3
 - Execute `./db_sync` takes around 6 minutes to complete
 
+Note that if your tiny_tds gem is not installed globally you will need to add `gem 'tiny_tds', '= 0.6.3.rc1'` to the bottom of the Gemfile.
+
 ## Custom usage
 
 ```bash
