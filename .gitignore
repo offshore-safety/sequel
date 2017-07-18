@@ -9,3 +9,4 @@
 /www/public/*.html
 /www/public/rdoc*
 .idea
+.env
