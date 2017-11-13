@@ -201,6 +201,16 @@ begin
         TO_DB.run("SET IDENTITY_INSERT #{table} ON")
       rescue
       end
+
+      # By default the SQLServer driver will truncate nvarchar fields at 4096
+      # bytes (2048 UTF-16 characters). Tell SQLServer not to truncate at all by
+      # setting the threshold at the maximum possible size for nvarchar fields.
+      # We may be able to remove this after upgrading freetds to version 7.2, as
+      # suggested in this StackOverflow question:
+      # https://stackoverflow.com/questions/24845037/ruby-2-0-on-windows-connecting-to-ms-sql-varcharmax-truncating-to-2048
+      two_gigabytes = 2**31 - 1
+      DB.run("SET TEXTSIZE #{two_gigabytes}")
+
       record_count = DB["SELECT * FROM #{table}"].count
       puts "Begin copying #{record_count} record(s) into -> " << "#{table}".blue.bold
 
